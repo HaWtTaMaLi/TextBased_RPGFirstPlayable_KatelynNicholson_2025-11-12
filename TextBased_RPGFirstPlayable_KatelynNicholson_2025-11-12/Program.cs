@@ -25,6 +25,17 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
 
         static void Main()
         {
+            //draw map
+            Map(0);
+
+            //place player and set health
+            Player();
+            PlayerHealth();
+
+            //place enemy and set health
+            Enemy();
+            EnemyHealth();
+
         }
 
         static void Map()
