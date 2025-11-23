@@ -18,6 +18,11 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
         //can be attacked and killed (by enemy moving into them)
 
         //Enemy
+        static int enemyX = 5;
+        static int enemyY = 5;
+        static char enemyChar = 'X';
+        static int enemyHealth;
+        static int enemyMaxHealth = 100;
         //movies via simple ai
         //attacks players via moving into them
         //can be attacked and killed by moving into them
@@ -64,7 +69,6 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
 
         //Store the map in a text file
         //Reads it as an array
-        //walls/boundaries
         //player cannot move through bounds
         //Enemy cannot move through bounds
         //map with only borders is not enough make it visually nice
@@ -72,7 +76,7 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
 
         static void Main()
         {
-            Map(); //works but never updates
+            //Map(); //works but never updates
 
             while (true) //WASD
             {
@@ -94,7 +98,7 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
                     case ConsoleKey.D: newX++; break;
                 }
                 
-                //stay in the map
+                //Boundaries 
                 if(newY >= 0 && newY < map.GetLength(0) &&
                 newX >= 0 && newX < map.GetLength(1))
                 {
@@ -114,7 +118,7 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
 
         static void Map()
         {
-
+            //Walls = - && | 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write("X");//Top Left Corner
             for (int rowBoarder = 0; rowBoarder < map.GetLength(1); rowBoarder++)
@@ -137,7 +141,12 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
                         Console.BackgroundColor = ConsoleColor.Cyan;
                         Console.Write(playerChar);
                     }
-                    else 
+                    else if (row == enemyY && col == enemyX)
+                    {
+
+                        Console.Write(enemyChar);
+                    }
+                    else
                     {
                         char tile = map[row, col];
 
