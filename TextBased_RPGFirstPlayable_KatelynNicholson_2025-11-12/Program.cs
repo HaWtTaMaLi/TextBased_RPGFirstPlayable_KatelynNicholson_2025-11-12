@@ -25,8 +25,9 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
         //refer to Health Systems / and rpg map
 
         //PLAYER
-        static int playerX = 9;
-        static int playerY = 5;
+        static int playerX = 93;
+        static int playerY = 22;
+        static char playerChar = '@';
         static int currenthealth;
         static int maxHealth = 100;
         static int currentShield;
@@ -71,10 +72,12 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
 
         static void Main()
         {
-        
+            Map(); //works but never updates
+
             while (true) //WASD
             {
-                //draw tha map
+                Console.SetCursorPosition(0, 0);
+                Console.Clear();
                 Map();
 
                 //Player Input
@@ -127,28 +130,38 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
 
                 for (int col = 0; col < map.GetLength(1); col++) //left to right
                 {
-                    char tile = map[row, col];
 
-                    switch (tile)
+                    if (row == playerY && col == playerX)
                     {
-                        case '▓': //Grass
-                            Console.ForegroundColor = ConsoleColor.DarkGreen;
-                            Console.BackgroundColor = ConsoleColor.Green;
-                            break;
-                        case '░': //Ocean
-                            Console.ForegroundColor = ConsoleColor.White;
-                            Console.BackgroundColor = ConsoleColor.Blue;
-                            break;
-                        case '▒': //Lake
-                            Console.ForegroundColor = ConsoleColor.DarkBlue;
-                            Console.BackgroundColor = ConsoleColor.Black;
-                            break;
-                        case '⌠': //Tree
-                            Console.ForegroundColor = ConsoleColor.Black;
-                            Console.BackgroundColor = ConsoleColor.Green;
-                            break;
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.BackgroundColor = ConsoleColor.Cyan;
+                        Console.Write(playerChar);
                     }
-                    Console.Write(tile);
+                    else 
+                    {
+                        char tile = map[row, col];
+
+                        switch (tile)
+                        {
+                            case '▓': //Grass
+                                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                                Console.BackgroundColor = ConsoleColor.Green;
+                                break;
+                            case '░': //Ocean
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.BackgroundColor = ConsoleColor.Blue;
+                                break;
+                            case '▒': //Lake
+                                Console.ForegroundColor = ConsoleColor.DarkBlue;
+                                Console.BackgroundColor = ConsoleColor.Black;
+                                break;
+                            case '⌠': //Tree
+                                Console.ForegroundColor = ConsoleColor.Black;
+                                Console.BackgroundColor = ConsoleColor.Green;
+                                break;
+                        }
+                        Console.Write(tile);
+                    }
                 }
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.BackgroundColor = ConsoleColor.Black;
