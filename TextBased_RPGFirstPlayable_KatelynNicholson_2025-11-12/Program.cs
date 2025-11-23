@@ -51,6 +51,7 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
             map = LoadMap("map.txt");
             Map();
 
+
             Console.WriteLine("Press any key to exit....");
             Console.ReadKey();
             /*while (true) //WASD
@@ -92,7 +93,7 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
 
         static char[,] LoadMap(string path)
         {
-            string[] mapLines = File.ReadAllLines(path);
+            string[] mapLines = File.ReadAllLines("map.txt");
 
             int rows = mapLines.Length;
             int cols = mapLines[0].Length;
