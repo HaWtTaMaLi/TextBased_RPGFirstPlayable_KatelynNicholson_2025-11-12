@@ -6,41 +6,27 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
 {
     internal class Program
     {
-
-        //MAP
-        //walls/boundaries
-        //player cannot move through bounds
-        //Enemy cannot move through bounds
-        //map with only borders is not enough make it visually nice
-
-        //Player
-        //moves WASD/ arrow keys input
-        //attacks enemies by moving into them
-        //can be attacked and killed (by enemy moving into them)
-        /////////////////////////////////////////////////////////
-
-        //Enemy
-        static int enemyX = 5;
-        static int enemyY = 5;
+        //ENEMY
+        static int enemyX = 50;
+        static int enemyY = 15;
         static char enemyChar = 'X';
         static int enemyHealth;
         static int enemyMaxHealth = 100;
+        static int sightDistance = 20;
         enum EnemyState
         {
-            Patrol, 
+            Patrol,
+            Chase,
             Attack
         }
-        static EnemyState currentState;
-        //movies via simple ai
-        //attacks players via moving into them
-        //can be attacked and killed by moving into them
-
-        //refer to Health Systems / and rpg map
-        /////////////////////////////////////////////////////////
+        static EnemyState currentState = EnemyState.Patrol;
+        static int enemyCoolDown = 0;
+        static int enemyMoveRate = 1;
+        static Random random = new Random();
 
         //PLAYER
-        static int playerX = 93;
-        static int playerY = 22;
+        static int playerX = 93; //93
+        static int playerY = 22; //22
         static char playerChar = '@';
         static int currenthealth;
         static int maxHealth = 100;
@@ -48,7 +34,6 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
         static int maxShield = 50;
         static int lives = 2;
 
-        /////////////////////////////////////////////////////////
         static char[,] map = new char[,]
         {
             {'⌠','▓','▓','⌠','▓','▓','▓','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠'},
@@ -76,21 +61,15 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
             {'▓','▓','▓','▓','▓','▓','▓','⌠','▓','░','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','░','▒','▒','▒','▒','▒','▒','▒','▒','▒','▒','░','▒','▒','▒','░','▓','▓','▓'},//< this island is player spawnPoint
         };
 
-        //Store the map in a text file
-        //Reads it as an array
-        //player cannot move through bounds
-        //Enemy cannot move through bounds
-        //map with only borders is not enough make it visually nice
-
         static void Main()
         {
-            //Map(); //works but never updates
 
             while (true) //WASD
             {
-                Console.SetCursorPosition(0, 0);
                 Console.Clear();
                 Map();
+                PlayerHUD(currenthealth, currentShield, lives);
+                EnemyHUD(enemyHealth);
 
                 //Player Input
                 ConsoleKey key = Console.ReadKey(true).Key;
@@ -105,36 +84,189 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
                     case ConsoleKey.A: newX--; break;
                     case ConsoleKey.D: newX++; break;
                 }
-                
+
                 //Boundaries 
-                if(newY >= 0 && newY < map.GetLength(0) &&
+                if (newY >= 0 && newY < map.GetLength(0) &&
                 newX >= 0 && newX < map.GetLength(1))
                 {
                     playerX = newX;
                     playerY = newY;
                 }
 
-                
+                //Update Enemy
+                Update();
+
                 Thread.Sleep(300);
             }
         }
 
-            //place player and set health
-            //PlayerTakeDamage();
-            //PlayerHealth();
-
-            //place enemy and set health
-            //EnemyTakeDamage();
-            //EnemyHealth();
-
         static void Update()
         {
+            int directionX = playerX - enemyX;
+            int directionY = playerY - enemyY;
+            int distance = Math.Abs(directionX) + Math.Abs(directionY);
+
+            //Decide State
+            if (distance == 0)
+                currentState = EnemyState.Attack;
+            else if (distance <= sightDistance)
+                currentState = EnemyState.Chase;
+            else
+                currentState = EnemyState.Patrol;
+
+            //Act State
             switch (currentState)
             {
-                case EnemyState.Patrol: 
+                case EnemyState.Patrol:
+                    EnemyPatrol(); //Enemy RandomMovement
                     break;
-                case EnemyState.Attack: 
+                case EnemyState.Chase:
+                    EnemyChase(); //Enemy Chase
                     break;
+                case EnemyState.Attack:
+                    PlayerTakeDamage(); //EnemyAttack
+                    break;
+            }
+        }
+
+        static void EnemyPatrol() //EenemyState.Patrol
+        {
+            if (enemyCoolDown > 0)
+            {
+                enemyCoolDown--;
+                return;
+            }
+
+            enemyCoolDown = enemyMoveRate;
+
+            //Enemy RandomMovement
+            int moveDirection = random.Next(1, 5);
+            int moveX = enemyX;
+            int moveY = enemyY;
+
+            switch (moveDirection)
+            {
+                case 1: moveY--; break;
+                case 2: moveY++; break;
+                case 3: moveX--; break;
+                case 4: moveX++; break;
+            }
+
+            //Enemy Boundaries
+            if (moveY >= 0 && moveY < map.GetLength(0) &&
+                moveX >= 0 && moveX < map.GetLength(1) &&
+                map[moveY, moveX] != '▒') //Safe area = ▒
+            {
+                enemyY = moveY;
+                enemyX = moveX;
+            }
+
+        }
+
+        static void EnemyChase() //EnemyState.Chase
+        {
+            if (enemyCoolDown > 0)
+            {
+                enemyCoolDown--;
+                return;
+            }
+
+            enemyCoolDown = enemyMoveRate;
+
+            int moveX = enemyX;
+            int moveY = enemyY;
+
+            if (moveX != playerX)
+                moveX += Math.Sign(playerX - enemyX);
+            if (moveY != enemyY)
+                moveY += Math.Sign(playerY - enemyY);
+
+                //Boundaries 
+                if (moveY >= 0 && moveY < map.GetLength(0) &&
+                        moveX >= 0 && moveX < map.GetLength(1) &&
+                        map[moveY, moveX] != '░')
+                {
+                    enemyX = moveX;
+                    enemyY = moveY;
+                }
+        }
+
+        static void PlayerTakeDamage() //EnemyState.Attack
+        {
+            int damage = random.Next(1, 21); //Generates a random damage between 1-20
+
+            if (currentShield > 0)
+            {
+                if (damage <= currentShield)
+                {
+                    currentShield -= damage;
+                    damage = 0;
+                }
+                else
+                {
+                    damage -= currentShield;
+                    currentShield = 0;
+                }
+            }
+
+            if (damage > 0)
+            {
+                currenthealth -= damage;
+                if (currenthealth < 0) currenthealth = 0;
+
+                if (currenthealth <= 0)
+                {
+                    if (lives > 0)
+                    {
+                        lives--;
+                        currenthealth = maxHealth;
+                        currentShield = maxShield;
+                    }
+                    else
+                    {
+                        GameOver();
+                    }
+                }
+            }
+        }
+
+        static void PlayerHUD(int currentHealth, int currentShield, int lives)
+        {
+            int HUD = 97;
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.BackgroundColor = ConsoleColor.Cyan;
+            Console.SetCursorPosition(HUD, 20);
+            Console.WriteLine("-----PLAYER-----");
+            Console.SetCursorPosition(HUD, 21);
+            Console.WriteLine($"Health: {currentHealth}     ");
+            Console.SetCursorPosition(HUD, 22);
+            Console.WriteLine($"Shield: {currentShield}      ");
+            Console.SetCursorPosition(HUD, 23);
+            Console.WriteLine($"Lives: {lives}        ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.BackgroundColor = ConsoleColor.Black;
+
+        }
+
+        static void EnemyHUD(int enemyHealth)
+        {
+            int HUD = 97;
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.BackgroundColor = ConsoleColor.Red;
+            Console.SetCursorPosition(HUD, 1);
+            Console.WriteLine("-----ENEMY-----");
+            Console.SetCursorPosition(HUD, 2);
+            Console.Write($"Health: {enemyHealth}    ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.BackgroundColor = ConsoleColor.Black;
+        }
+
+        static void EnemyTakeDamage(int damage)
+        {
+
+            if (playerX == enemyX && playerY == enemyY)
+            {
+                currentState = EnemyState.Attack;
             }
         }
 
@@ -165,7 +297,8 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
                     }
                     else if (row == enemyY && col == enemyX)
                     {
-
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        Console.BackgroundColor = ConsoleColor.Red;
                         Console.Write(enemyChar);
                     }
                     else
@@ -240,36 +373,14 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        static void EnemyMovement()
+        static void GameOver()
         {
-
+            //
         }
 
-        static void PlayerHealth()
+        static void YouWon()
         {
-
-        }
-
-        static void EnemyHealth()
-        {
-
-        }
-
-        static void PlayerTakeDamage(int damage)
-        {
-            if (damage <= 0)
-            {
-
-            }
-        }
-
-        static void EnemyTakeDamage(int damage)
-        {
-            if(damage <= 0)
-            {
-
-            }
+            //
         }
     }
 }
-
