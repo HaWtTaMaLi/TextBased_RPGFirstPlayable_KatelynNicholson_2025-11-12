@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 
 namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
 {
@@ -16,6 +17,7 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
         //moves WASD/ arrow keys input
         //attacks enemies by moving into them
         //can be attacked and killed (by enemy moving into them)
+        /////////////////////////////////////////////////////////
 
         //Enemy
         static int enemyX = 5;
@@ -23,11 +25,18 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
         static char enemyChar = 'X';
         static int enemyHealth;
         static int enemyMaxHealth = 100;
+        enum EnemyState
+        {
+            Patrol, 
+            Attack
+        }
+        static EnemyState currentState;
         //movies via simple ai
         //attacks players via moving into them
         //can be attacked and killed by moving into them
 
         //refer to Health Systems / and rpg map
+        /////////////////////////////////////////////////////////
 
         //PLAYER
         static int playerX = 93;
@@ -73,7 +82,6 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
         //Enemy cannot move through bounds
         //map with only borders is not enough make it visually nice
 
-
         static void Main()
         {
             //Map(); //works but never updates
@@ -105,6 +113,9 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
                     playerX = newX;
                     playerY = newY;
                 }
+
+                
+                Thread.Sleep(300);
             }
         }
 
@@ -115,6 +126,17 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
             //place enemy and set health
             //EnemyTakeDamage();
             //EnemyHealth();
+
+        static void Update()
+        {
+            switch (currentState)
+            {
+                case EnemyState.Patrol: 
+                    break;
+                case EnemyState.Attack: 
+                    break;
+            }
+        }
 
         static void Map()
         {
@@ -216,6 +238,11 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
             //ResetColors
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        static void EnemyMovement()
+        {
+
         }
 
         static void PlayerHealth()
