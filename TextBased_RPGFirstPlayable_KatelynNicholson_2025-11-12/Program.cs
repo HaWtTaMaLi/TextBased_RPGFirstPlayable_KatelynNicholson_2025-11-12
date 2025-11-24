@@ -68,8 +68,8 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
             {
                 Console.Clear();
                 Map();
-                PlayerHUD(currenthealth, currentShield, lives);
-                EnemyHUD(enemyHealth);
+                PlayerHUD(100, 50, 3);
+                EnemyHUD(100);
 
                 //Player Input
                 ConsoleKey key = Console.ReadKey(true).Key;
