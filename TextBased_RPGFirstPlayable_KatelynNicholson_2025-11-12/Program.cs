@@ -6,6 +6,7 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
 {
     internal class Program
     {
+        //
         //ENEMY
         static int enemyX = 50;
         static int enemyY = 15;
