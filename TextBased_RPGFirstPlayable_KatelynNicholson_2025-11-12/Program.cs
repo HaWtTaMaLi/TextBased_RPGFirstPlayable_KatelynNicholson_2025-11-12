@@ -1,14 +1,14 @@
 ﻿using System;
 using System.IO;
+using System.Net;
 using System.Threading;
 
 namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
 {
     internal class Program
     {
-        //
         //ENEMY
-        static int enemyX = 50;
+        static int enemyX = 70;
         static int enemyY = 15;
         static char enemyChar = 'X';
         static int enemyHealth;
@@ -25,25 +25,32 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
         static int enemyMoveRate = 1;
         static Random random = new Random();
 
+        static int coinX;
+        static int coinY;
+        static int coinValue = 10;
+        static char coinChar = 'O';
+        static int coinsCollected = 0;
+
         //PLAYER
         static int playerX = 93; //93
         static int playerY = 22; //22
         static char playerChar = '@';
-        static int currenthealth;
+        static int playerMoney = 0;
+        static int currentHealth;
         static int maxHealth = 100;
         static int currentShield;
-        static int maxShield = 50;
-        static int lives = 2;
+        static int maxShield = 20;
+        static int lives = 1;
 
         static char[,] map = new char[,]
         {
             {'⌠','▓','▓','⌠','▓','▓','▓','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠'},
             {'▓','▓','⌠','▓','⌠','▓','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','▓','▓','▓','⌠','▓','▓','⌠','⌠','⌠','⌠','▓','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠','⌠'},
-            {'▓','⌠','▓','▓','⌠','⌠','▓','▓','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠'},
-            {'▓','▓','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','▓','▓','▓','▓','▓','⌠','▓','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠'},
-            {'▓','▓','⌠','▓','▓','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠'},
-            {'⌠','▓','⌠','▓','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠'},
-            {'▓','⌠','▓','▓','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','░'},
+            {'▓','⌠','▓','▓','⌠','⌠','▓','▓','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','~','~','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠'},
+            {'▓','▓','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','▓','▓','▓','▓','▓','⌠','▓','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','~','~','~','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠'},
+            {'▓','▓','⌠','▓','▓','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','~','~','~','~','~','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠'},
+            {'⌠','▓','⌠','▓','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','~','~','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠'},
+            {'▓','⌠','▓','▓','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','~','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','░'},
             {'▓','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','▓','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','░','▒'},
             {'▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','░','░','░','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▒','▒'},
             {'⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','░','░','░','░','░','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','⌠','⌠','⌠','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','▓','░','░','▒','░'},
@@ -64,13 +71,19 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
 
         static void Main()
         {
+            currentHealth = maxHealth;
+            currentShield = maxShield;
+            enemyHealth = enemyMaxHealth;
+            SpawnCoin();
 
             while (true) //WASD
             {
+
                 Console.Clear();
                 Map();
-                PlayerHUD(100, 50, 3);
-                EnemyHUD(100);
+                CoinsCollected();
+                PlayerHUD(currentHealth, currentShield, lives);
+                EnemyHUD(enemyHealth);
 
                 //Player Input
                 ConsoleKey key = Console.ReadKey(true).Key;
@@ -93,6 +106,16 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
                     playerX = newX;
                     playerY = newY;
                 }
+
+                if (playerX == coinX && playerY == coinY)
+                {
+                    coinsCollected += coinValue;
+                    Console.Clear();
+                    SpawnCoin();
+                }
+
+                EnemyTakeDamage(20);
+                EnvironmentalDamage();
 
                 //Update Enemy
                 Update();
@@ -128,6 +151,13 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
                     PlayerTakeDamage(); //EnemyAttack
                     break;
             }
+        }
+
+        static void SpawnCoin()
+        {
+
+            coinX = random.Next(0, map.GetLength(1));
+            coinY = random.Next(0, map.GetLength(0));
         }
 
         static void EnemyPatrol() //EenemyState.Patrol
@@ -182,19 +212,19 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
             if (moveY != enemyY)
                 moveY += Math.Sign(playerY - enemyY);
 
-                //Boundaries 
-                if (moveY >= 0 && moveY < map.GetLength(0) &&
-                        moveX >= 0 && moveX < map.GetLength(1) &&
-                        map[moveY, moveX] != '░')
-                {
-                    enemyX = moveX;
-                    enemyY = moveY;
-                }
+            //Boundaries 
+            if (moveY >= 0 && moveY < map.GetLength(0) &&
+                    moveX >= 0 && moveX < map.GetLength(1) &&
+                    map[moveY, moveX] != '░')
+            {
+                enemyX = moveX;
+                enemyY = moveY;
+            }
         }
 
         static void PlayerTakeDamage() //EnemyState.Attack
         {
-            int damage = random.Next(1, 21); //Generates a random damage between 1-20
+            int damage = random.Next(1, 51); //Generates a random damage between 1-20
 
             if (currentShield > 0)
             {
@@ -212,16 +242,17 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
 
             if (damage > 0)
             {
-                currenthealth -= damage;
-                if (currenthealth < 0) currenthealth = 0;
+                currentHealth -= damage;
+                if (currentHealth < 0) currentHealth = 0;
 
-                if (currenthealth <= 0)
+                if (currentHealth <= 0)
                 {
                     if (lives > 0)
                     {
                         lives--;
-                        currenthealth = maxHealth;
-                        currentShield = maxShield;
+                        currentHealth = maxHealth;
+                        playerX = 93;
+                        playerY = 22;
                     }
                     else
                     {
@@ -229,6 +260,57 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
                     }
                 }
             }
+        }
+
+        static void EnvironmentalDamage()
+        {
+            if (map[playerY, playerX] == '~')
+            {
+                int lavaDMG = random.Next(1, 51); //Generates a random damage between 1-20
+
+                if (currentShield > 0)
+                {
+                    if (lavaDMG <= currentShield)
+                    {
+                        currentShield -= lavaDMG;
+                        lavaDMG = 0;
+                    }
+                    else
+                    {
+                        lavaDMG -= currentShield;
+                        currentShield = 0;
+                    }
+                }
+
+                if (lavaDMG > 0)
+                {
+                    currentHealth -= lavaDMG;
+                    if (currentHealth < 0) currentHealth = 0;
+
+                    if (currentHealth <= 0)
+                    {
+                        if (lives > 0)
+                        {
+                            lives--;
+                            currentHealth = maxHealth;
+                            playerX = 93;
+                            playerY = 22;
+                        }
+                        else
+                        {
+                            GameOver();
+                        }
+                    }
+                }
+            }
+        }
+
+        static void CoinsCollected()
+        {
+            int HUD = 97;
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.SetCursorPosition(HUD, 10);
+            Console.WriteLine($"Coins: ${coinsCollected}");
         }
 
         static void PlayerHUD(int currentHealth, int currentShield, int lives)
@@ -244,8 +326,7 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
             Console.WriteLine($"Shield: {currentShield}      ");
             Console.SetCursorPosition(HUD, 23);
             Console.WriteLine($"Lives: {lives}        ");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ResetColor();
 
         }
 
@@ -258,8 +339,8 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
             Console.WriteLine("-----ENEMY-----");
             Console.SetCursorPosition(HUD, 2);
             Console.Write($"Health: {enemyHealth}    ");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ResetColor();
+
         }
 
         static void EnemyTakeDamage(int damage)
@@ -267,7 +348,12 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
 
             if (playerX == enemyX && playerY == enemyY)
             {
-                currentState = EnemyState.Attack;
+                enemyHealth -= damage;
+                if (enemyHealth < 0) enemyHealth = 0;
+                if (enemyHealth == 0)
+                {
+                    YouWon();
+                }
             }
         }
 
@@ -302,6 +388,12 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
                         Console.BackgroundColor = ConsoleColor.Red;
                         Console.Write(enemyChar);
                     }
+                    else if (row == coinY && col == coinX)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.BackgroundColor = ConsoleColor.Green;
+                        Console.Write(coinChar);
+                    }
                     else
                     {
                         char tile = map[row, col];
@@ -324,12 +416,15 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
                                 Console.ForegroundColor = ConsoleColor.Black;
                                 Console.BackgroundColor = ConsoleColor.Green;
                                 break;
+                            case '~': //Lava
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.BackgroundColor = ConsoleColor.DarkRed;
+                                break;
                         }
                         Console.Write(tile);
                     }
                 }
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.BackgroundColor = ConsoleColor.Black;
+                Console.ResetColor();
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("|");//Right Boarder
             }
@@ -339,7 +434,7 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
                 Console.Write("-"); //Bottom Boarder
             }
             Console.WriteLine("X");//Bottom Right Corner
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ResetColor();
 
             //Legend
             Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -370,18 +465,49 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
             Console.WriteLine(" = Trees");
 
             //ResetColors
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ResetColor();
         }
 
         static void GameOver()
         {
-            //
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.BackgroundColor = ConsoleColor.Red;
+            Console.WriteLine(@"
+__     ______  _    _   _      ____   _____ ______ 
+\ \   / / __ \| |  | | | |    / __ \ / ____|  ____|
+ \ \_/ / |  | | |  | | | |   | |  | | (___ | |__   
+  \   /| |  | | |  | | | |   | |  | |\___ \|  __|  
+   | | | |__| | |__| | | |___| |__| |____) | |____ 
+   |_|  \____/ \____/  |______\____/|_____/|______|
+");
+            Console.WriteLine("You have fallen in battle...");
+            Console.WriteLine("Press any key to exit.");
+
+            Console.ResetColor();
+            Console.ReadKey();
+            Environment.Exit(0);
         }
 
         static void YouWon()
         {
-            //
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.BackgroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(@"
+__     ______  _    _  __          __   __  __ 
+\ \   / / __ \| |  | | \ \        / /(_)| \ | |
+ \ \_/ / |  | | |  | |  \ \  /\  / / | ||  \| |
+  \   /| |  | | |  | |   \ \/  \/ /  | ||     |
+   | | | |__| | |__| |    \  /\  /   | || |\  |
+   |_|  \____/ \____/      \/  \/    |_||_| \_|
+");
+            Console.WriteLine("Victory is yours!");
+            Console.WriteLine("Press any key to exit.");
+
+            Console.ResetColor();
+            Console.ReadKey();
+            Environment.Exit(0);
         }
     }
 }
