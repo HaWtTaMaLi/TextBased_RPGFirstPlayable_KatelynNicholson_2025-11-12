@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Net;
 using System.Threading;
 
 namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
@@ -30,12 +29,12 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
         static int coinValue = 10;
         static char coinChar = 'O';
         static int coinsCollected = 0;
+        static int playerCoin = 0;
 
         //PLAYER
         static int playerX = 93; //93
         static int playerY = 22; //22
         static char playerChar = '@';
-        static int playerMoney = 0;
         static int currentHealth;
         static int maxHealth = 100;
         static int currentShield;
@@ -112,6 +111,11 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
                     coinsCollected += coinValue;
                     Console.Clear();
                     SpawnCoin();
+
+                    if (coinsCollected >= 100 && enemyHealth == 0)
+                    {
+                        YouWon(); //only if your cool or whatever
+                    }
                 }
 
                 EnemyTakeDamage(20);
@@ -155,9 +159,13 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
 
         static void SpawnCoin()
         {
+            do
+            {
+                coinX = random.Next(0, map.GetLength(1));
+                coinY = random.Next(0, map.GetLength(0));
+            }
+            while (map[coinY, coinX] != '▓'); //Only on grass
 
-            coinX = random.Next(0, map.GetLength(1));
-            coinY = random.Next(0, map.GetLength(0));
         }
 
         static void EnemyPatrol() //EenemyState.Patrol
@@ -350,9 +358,9 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
             {
                 enemyHealth -= damage;
                 if (enemyHealth < 0) enemyHealth = 0;
-                if (enemyHealth == 0)
+                if (enemyHealth == 0 && coinsCollected >= 100)
                 {
-                    YouWon();
+                    YouWon(); //only if your cool or whatever
                 }
             }
         }
@@ -437,6 +445,9 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
             Console.ResetColor();
 
             //Legend
+            int HUD = 25;
+            int HUDt = 27;
+            Console.SetCursorPosition(0, HUD);
             Console.ForegroundColor = ConsoleColor.DarkGreen;
             Console.BackgroundColor = ConsoleColor.Green;
             Console.Write("▓");
@@ -444,12 +455,14 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
             Console.BackgroundColor = ConsoleColor.Black;
             Console.WriteLine(" = Grass");
 
+            Console.SetCursorPosition(10, HUD);
             Console.ForegroundColor = ConsoleColor.White;
             Console.BackgroundColor = ConsoleColor.Blue;
             Console.Write("░");
             Console.BackgroundColor = ConsoleColor.Black;
             Console.WriteLine(" = Lake");
 
+            Console.SetCursorPosition(20, HUD);
             Console.ForegroundColor = ConsoleColor.DarkBlue;
             Console.BackgroundColor = ConsoleColor.Black;
             Console.Write("▒");
@@ -457,12 +470,61 @@ namespace TextBased_RPGFirstPlayable_KatelynNicholson_2025_11_12
             Console.BackgroundColor = ConsoleColor.Black;
             Console.WriteLine(" = Ocean");
 
+            Console.SetCursorPosition(30, HUD);
             Console.ForegroundColor = ConsoleColor.Black;
             Console.BackgroundColor = ConsoleColor.Green;
             Console.Write("⌠");
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(" = Trees");
+
+
+            Console.SetCursorPosition(40, HUD);
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.BackgroundColor = ConsoleColor.DarkRed;
+            Console.Write("~");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.WriteLine(" = Lava");
+
+
+            Console.SetCursorPosition(5, HUDt);
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.BackgroundColor = ConsoleColor.Red;
+            Console.Write("X");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.WriteLine(" = Enemy");
+
+            Console.SetCursorPosition(20, HUDt);
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.BackgroundColor = ConsoleColor.Cyan;
+            Console.Write("@");
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.WriteLine(" = Player");
+
+            Console.SetCursorPosition(35, HUDt);
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.Write("O");
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.WriteLine(" = Coin");
+
+            Console.ResetColor();
+            int tips = 70;
+            Console.SetCursorPosition(tips, 25);
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.BackgroundColor = ConsoleColor.Magenta;
+            Console.Write("    Collect 100 Coins    ");
+            Console.SetCursorPosition(tips, 26);
+            Console.WriteLine("       and Kill the      ");
+            Console.SetCursorPosition(tips, 27);
+            Console.WriteLine("       Enemy To Win!     ");
+            Console.SetCursorPosition(tips, 28);
+            Console.WriteLine("         Good Luck!      ");
+
 
             //ResetColors
             Console.ResetColor();
